@@ -1,0 +1,26 @@
+# Ignore .env files containing environment variables with secrets
+.env
+
+# Ignore Python bytecode and cache folders (if any Python code)
+__pycache__/
+*.py[cod]
+
+# Ignore data directory if it contains large or sensitive data you don't want in Git
+data/
+
+# Ignore local Docker Compose override files, if any
+docker-compose.override.yml
+
+# Ignore editor or OS specific files
+.vscode/
+.idea/
+.DS_Store
+
+# Ignore backend dependencies (add specifics as necessary, e.g., node_modules for Node.js)
+backend/node_modules/
+
+# Ignore logs and temp files
+*.log
+tmp/
+
+backend/venv
