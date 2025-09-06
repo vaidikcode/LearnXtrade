@@ -22,3 +22,5 @@ backend/node_modules/
 # Ignore logs and temp files
 *.log
 tmp/
+
+backend/venv
