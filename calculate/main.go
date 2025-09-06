@@ -95,11 +95,11 @@ func calculateScoreHandler(c *gin.Context) {
 
 	totalScore := videoScore + noteScore + assignmentScore
 
-	if videoScore < 0.3 || noteScore < 0.3 || assignmentScore < 0.3 {
-		if totalScore > 0.5 {
-			totalScore = 0.5
-		}
-	}
+	// if videoScore < 0.3 || noteScore < 0.3 || assignmentScore < 0.3 {
+	// 	if totalScore > 0.5 {
+	// 		totalScore = 0.5
+	// 	}
+	// }
 
 	c.JSON(http.StatusOK, gin.H{"score": totalScore, "source": "primitive"})
 }
