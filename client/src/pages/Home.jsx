@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, Pagination, Navigation, EffectCoverflow } from 'swiper/modules';
+import { Autoplay, Pagination, Navigation } from 'swiper/modules';
 import { useInView } from 'react-intersection-observer';
 import CountUp from 'react-countup';
 
@@ -10,12 +10,27 @@ import CountUp from 'react-countup';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
-import 'swiper/css/effect-coverflow';
 
 export default function Home() {
-    const [activeCategory, setActiveCategory] = useState(null);
+    const [isSearchFocused, setIsSearchFocused] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [activeCategory, setActiveCategory] = useState('All');
+    const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
     const [stats, setStats] = useState({ students: 0, courses: 0, instructors: 0 });
-    const [isNavOpen, setIsNavOpen] = useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    const notificationsRef = useRef(null);
+
+    // Handle clicks outside the notifications panel
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (notificationsRef.current && !notificationsRef.current.contains(event.target)) {
+                setIsNotificationsOpen(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     // Animation variants
     const fadeIn = {
@@ -33,27 +48,8 @@ export default function Home() {
         }
     };
 
-    const scaleIn = {
-        hidden: { scale: 0.8, opacity: 0 },
-        visible: {
-            scale: 1,
-            opacity: 1,
-            transition: { duration: 0.5 }
-        }
-    };
-
     // Intersection observer hooks for animations
-    const [featuresRef, featuresInView] = useInView({
-        triggerOnce: true,
-        threshold: 0.1
-    });
-
     const [statsRef, statsInView] = useInView({
-        triggerOnce: true,
-        threshold: 0.1
-    });
-
-    const [testimonialsRef, testimonialsInView] = useInView({
         triggerOnce: true,
         threshold: 0.1
     });
@@ -62,155 +58,114 @@ export default function Home() {
     useEffect(() => {
         if (statsInView) {
             setStats({
-                students: 15000,
-                courses: 120,
-                instructors: 85
+                students: 32500,
+                courses: 278,
+                instructors: 142
             });
         }
     }, [statsInView]);
 
-    // Sample course data
+    // Course data with broader subject areas
     const courses = [
         {
             id: 1,
-            title: "Introduction to Stock Trading",
-            educator: "Sarah Williams",
-            category: "Finance",
-            description: "Learn the fundamentals of stock markets and develop trading strategies.",
+            title: "Python Programming Fundamentals",
+            educator: "Alex Johnson",
+            category: "Programming",
+            description: "Master Python basics and build your first applications from scratch.",
             rating: 4.8,
-            students: 1243,
-            image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+            students: 4258,
+            image: "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+            tags: ["beginner", "programming", "technology"]
         },
         {
             id: 2,
-            title: "Cryptocurrency Fundamentals",
-            educator: "Michael Chen",
-            category: "Blockchain",
-            description: "Understand blockchain technology and the cryptocurrency ecosystem.",
-            rating: 4.6,
-            students: 982,
-            image: "https://images.unsplash.com/photo-1516245834210-c4c142787335?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+            title: "UI/UX Design Principles",
+            educator: "Emily Zhang",
+            category: "Design",
+            description: "Learn to create beautiful user interfaces that engage and convert.",
+            rating: 4.9,
+            students: 3127,
+            image: "https://images.unsplash.com/photo-1561070791-2526d30994b5?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+            tags: ["design", "creative", "intermediate"]
         },
         {
             id: 3,
-            title: "Technical Analysis Masterclass",
+            title: "Financial Literacy Essentials",
             educator: "Robert Taylor",
             category: "Finance",
-            description: "Master chart patterns and indicators for successful trading.",
-            rating: 4.9,
-            students: 756,
-            image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+            description: "Build a strong foundation in personal finance and investment basics.",
+            rating: 4.7,
+            students: 2854,
+            image: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+            tags: ["finance", "beginner", "personal-development"]
         },
         {
             id: 4,
-            title: "Investment Portfolio Management",
-            educator: "David Wilson",
-            category: "Finance",
-            description: "Learn to build and manage a diversified investment portfolio.",
-            rating: 4.7,
-            students: 534,
-            image: "https://images.unsplash.com/photo-1579225663317-c0505f91d60d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+            title: "Data Science for Beginners",
+            educator: "Sarah Williams",
+            category: "Data Science",
+            description: "Start your journey into data analysis, visualization and machine learning.",
+            rating: 4.6,
+            students: 3542,
+            image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+            tags: ["data", "technology", "beginner"]
         },
         {
             id: 5,
-            title: "Algorithmic Trading Basics",
-            educator: "Emma Davis",
-            category: "Technology",
-            description: "Get started with automated trading strategies and algorithms.",
-            rating: 4.5,
-            students: 412,
-            image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+            title: "Digital Marketing Masterclass",
+            educator: "Michael Chen",
+            category: "Marketing",
+            description: "Learn proven strategies to grow your brand online and drive conversions.",
+            rating: 4.8,
+            students: 2975,
+            image: "https://images.unsplash.com/photo-1557838923-2985c318be48?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+            tags: ["marketing", "business", "intermediate"]
         },
         {
             id: 6,
-            title: "Risk Management in Trading",
-            educator: "Jennifer Lopez",
-            category: "Finance",
-            description: "Learn essential risk management techniques to protect your capital.",
-            rating: 4.8,
-            students: 328,
-            image: "https://images.unsplash.com/photo-1535320903710-d993d3d77d29?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+            title: "Creative Writing Workshop",
+            educator: "James Wilson",
+            category: "Writing",
+            description: "Develop your storytelling skills and find your unique creative voice.",
+            rating: 4.7,
+            students: 1896,
+            image: "https://images.unsplash.com/photo-1455390582262-044cdead277a?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+            tags: ["writing", "creative", "beginner"]
         }
     ];
 
     // Categories
     const categories = [
-        { id: 1, name: "Finance", icon: "💰" },
-        { id: 2, name: "Technology", icon: "💻" },
-        { id: 3, name: "Blockchain", icon: "🔗" },
-        { id: 4, name: "Economics", icon: "📊" },
-        { id: 5, name: "Business", icon: "📈" },
-        { id: 6, name: "Personal Finance", icon: "💵" },
-        { id: 7, name: "Wealth Management", icon: "🏦" }
+        { id: 1, name: "All", icon: "🔍" },
+        { id: 2, name: "Programming", icon: "💻" },
+        { id: 3, name: "Design", icon: "🎨" },
+        { id: 4, name: "Finance", icon: "💰" },
+        { id: 5, name: "Marketing", icon: "📊" },
+        { id: 6, name: "Data Science", icon: "📈" },
+        { id: 7, name: "Writing", icon: "✏️" }
     ];
 
-    // Features
-    const features = [
-        {
-            id: 1,
-            title: "Credits Wallet",
-            description: "Earn and spend credits on premium courses, consulting sessions, and more",
-            icon: (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            )
-        },
-        {
-            id: 2,
-            title: "Trust Score System",
-            description: "Build your reputation through consistent learning and positive contributions",
-            icon: (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-            )
-        },
-        {
-            id: 3,
-            title: "Badges & Gamification",
-            description: "Earn achievement badges and track progress to stay motivated",
-            icon: (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
-                </svg>
-            )
-        },
-        {
-            id: 4,
-            title: "Peer-to-Peer Consulting",
-            description: "Connect with experienced traders for personalized guidance",
-            icon: (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-            )
-        }
+    // Badges for gamification
+    const popularBadges = [
+        { id: 1, name: "Fast Learner", icon: "🚀", achievers: 1243 },
+        { id: 2, name: "Perfect Attendance", icon: "📅", achievers: 865 },
+        { id: 3, name: "Knowledge Guru", icon: "🧠", achievers: 579 },
+        { id: 4, name: "Problem Solver", icon: "🔍", achievers: 721 }
     ];
 
-    // Testimonials
-    const testimonials = [
-        {
-            id: 1,
-            name: "Alex Johnson",
-            role: "Student",
-            image: "https://randomuser.me/api/portraits/men/32.jpg",
-            text: "LearnXtrade helped me understand trading in a way traditional courses couldn't. The trust score system motivated me to stay consistent!"
-        },
-        {
-            id: 2,
-            name: "Maria Garcia",
-            role: "Consultant",
-            image: "https://randomuser.me/api/portraits/women/28.jpg",
-            text: "Being a consultant on LearnXtrade has been rewarding. I help others while building my profile and earning credits."
-        },
-        {
-            id: 3,
-            name: "Jamal Wilson",
-            role: "Student",
-            image: "https://randomuser.me/api/portraits/men/55.jpg",
-            text: "The gamification elements make learning finance actually enjoyable. I find myself excited to earn the next badge!"
-        }
+    // Leaderboard
+    const leaderboard = [
+        { id: 1, name: "Alex Johnson", points: 3850, courses: 12, avatar: "https://randomuser.me/api/portraits/men/32.jpg" },
+        { id: 2, name: "Maria Garcia", points: 3720, courses: 10, avatar: "https://randomuser.me/api/portraits/women/28.jpg" },
+        { id: 3, name: "Jamal Wilson", points: 3645, courses: 11, avatar: "https://randomuser.me/api/portraits/men/55.jpg" }
+    ];
+
+    // Notifications
+    const notifications = [
+        { id: 1, title: "New Course Available", message: "Python Advanced: Building Web Applications", time: "2 hours ago", read: false },
+        { id: 2, title: "Learning Streak!", message: "You've maintained a 7-day learning streak 🔥", time: "1 day ago", read: false },
+        { id: 3, title: "Achievement Unlocked", message: "You've earned the 'Fast Learner' badge", time: "3 days ago", read: true }
     ];
 
     // Helper function to render stars based on rating
@@ -220,31 +175,26 @@ export default function Home() {
                 {[...Array(5)].map((_, i) => (
                     <svg
                         key={i}
-                        className={`w-4 h-4 ${i < Math.floor(rating) ? 'text-yellow-400' : 'text-gray-300'
-                            }`}
+                        className={`w-4 h-4 ${i < Math.floor(rating) ? 'text-[#F59E0B]' : 'text-gray-300'}`}
                         fill="currentColor"
                         viewBox="0 0 20 20"
                     >
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
                 ))}
-                <span className="ml-1 text-sm text-gray-600">{rating}</span>
+                <span className="ml-1 text-sm text-[#6B7280]">{rating}</span>
             </div>
         );
     };
 
-    // Helper function to filter courses by category
-    const filterCoursesByCategory = (categoryName) => {
-        if (!categoryName) return courses;
-        return courses.filter(course => course.category === categoryName);
-    };
-
-    // Get trending courses (here just using the first 4 for demo)
-    const trendingCourses = courses.slice(0, 4);
+    // Filter courses by category
+    const filteredCourses = activeCategory === 'All'
+        ? courses
+        : courses.filter(course => course.category === activeCategory);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-            {/* Navigation with animation */}
+        <div className="min-h-screen bg-[#F9FAFB]">
+            {/* Navigation */}
             <header className="bg-white shadow-sm sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16">
@@ -254,7 +204,7 @@ export default function Home() {
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ duration: 0.5 }}
                             >
-                                <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                                <span className="text-xl font-bold bg-gradient-to-r from-[#6C63FF] to-[#8A84FF] bg-clip-text text-transparent">
                                     LearnXtrade
                                 </span>
                             </motion.div>
@@ -262,11 +212,11 @@ export default function Home() {
 
                         <div className="hidden md:flex items-center space-x-6">
                             <motion.div className="flex space-x-6" variants={staggerContainer} initial="hidden" animate="visible">
-                                {['Courses', 'Features', 'Testimonials', 'Pricing'].map((item, index) => (
+                                {['Courses', 'Categories', 'Educators', 'Pricing'].map((item, index) => (
                                     <motion.a
                                         key={index}
                                         href={`#${item.toLowerCase()}`}
-                                        className="text-gray-600 hover:text-gray-900 transition-colors"
+                                        className="text-[#6B7280] hover:text-[#111827] transition-colors"
                                         variants={fadeIn}
                                         whileHover={{ y: -2 }}
                                     >
@@ -274,14 +224,53 @@ export default function Home() {
                                     </motion.a>
                                 ))}
 
+                                <div className="relative" ref={notificationsRef}>
+                                    <motion.button
+                                        variants={fadeIn}
+                                        className="text-[#6B7280] hover:text-[#111827] p-2 rounded-full hover:bg-gray-100 transition-colors relative"
+                                        onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                            <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+                                        </svg>
+                                        {notifications.filter(n => !n.read).length > 0 && (
+                                            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                                        )}
+                                    </motion.button>
+
+                                    {isNotificationsOpen && (
+                                        <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg py-2 z-20 ring-1 ring-[#6C63FF]/10">
+                                            <div className="px-4 py-2 border-b border-gray-100">
+                                                <h3 className="font-medium text-[#111827]">Notifications</h3>
+                                            </div>
+                                            <div className="max-h-96 overflow-y-auto">
+                                                {notifications.map(notification => (
+                                                    <div key={notification.id} className={`px-4 py-3 hover:bg-gray-50 ${!notification.read ? 'bg-indigo-50/50' : ''}`}>
+                                                        <div className="flex justify-between items-start">
+                                                            <h4 className="text-sm font-medium text-[#111827]">{notification.title}</h4>
+                                                            <span className="text-xs text-[#6B7280]">{notification.time}</span>
+                                                        </div>
+                                                        <p className="text-xs text-[#6B7280] mt-1">{notification.message}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <div className="px-4 py-2 border-t border-gray-100 text-center">
+                                                <button className="text-sm text-[#6C63FF] hover:text-indigo-800 font-medium">
+                                                    View all notifications
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
                                 <motion.div variants={fadeIn}>
-                                    <Link to="/login" className="text-blue-600 hover:text-blue-800 font-medium">Log in</Link>
+                                    <Link to="/login" className="text-[#6C63FF] hover:text-indigo-800 font-medium">Log in</Link>
                                 </motion.div>
 
                                 <motion.div variants={fadeIn} whileHover={{ scale: 1.05 }}>
                                     <Link
                                         to="/signup"
-                                        className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-md shadow-sm hover:shadow-md transition-all duration-300"
+                                        className="bg-gradient-to-r from-[#6C63FF] to-[#5046E5] text-white px-4 py-2 rounded-md shadow-sm hover:shadow-md transition-all duration-300"
                                     >
                                         Sign up
                                     </Link>
@@ -292,7 +281,7 @@ export default function Home() {
                         <div className="md:hidden">
                             <button
                                 className="text-gray-500 hover:text-gray-700"
-                                onClick={() => setIsNavOpen(!isNavOpen)}
+                                onClick={() => setIsMenuOpen(!isMenuOpen)}
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -301,8 +290,8 @@ export default function Home() {
                         </div>
                     </div>
 
-                    {/* Mobile nav menu */}
-                    {isNavOpen && (
+                    {/* Mobile menu */}
+                    {isMenuOpen && (
                         <motion.div
                             className="md:hidden py-3 space-y-2"
                             initial={{ height: 0, opacity: 0 }}
@@ -310,21 +299,21 @@ export default function Home() {
                             exit={{ height: 0, opacity: 0 }}
                             transition={{ duration: 0.3 }}
                         >
-                            {['Courses', 'Features', 'Testimonials', 'Pricing'].map((item, index) => (
+                            {['Courses', 'Categories', 'Educators', 'Pricing'].map((item, index) => (
                                 <a
                                     key={index}
                                     href={`#${item.toLowerCase()}`}
                                     className="block py-2 px-4 text-gray-600 hover:bg-gray-50 rounded-md"
-                                    onClick={() => setIsNavOpen(false)}
+                                    onClick={() => setIsMenuOpen(false)}
                                 >
                                     {item}
                                 </a>
                             ))}
                             <div className="pt-2 flex flex-col space-y-2">
-                                <Link to="/login" className="block py-2 px-4 text-blue-600 hover:bg-blue-50 rounded-md">
+                                <Link to="/login" className="block py-2 px-4 text-[#6C63FF] hover:bg-indigo-50 rounded-md">
                                     Log in
                                 </Link>
-                                <Link to="/signup" className="block py-2 px-4 bg-blue-600 text-white rounded-md">
+                                <Link to="/signup" className="block py-2 px-4 bg-[#6C63FF] text-white rounded-md">
                                     Sign up
                                 </Link>
                             </div>
@@ -333,134 +322,171 @@ export default function Home() {
                 </div>
             </header>
 
-            {/* Hero Section with Animation */}
-            <section className="relative overflow-hidden">
-                {/* Animated background elements */}
-                <div className="absolute inset-0 -z-10">
-                    <div className="absolute top-20 right-[10%] w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-                    <div className="absolute top-40 left-[15%] w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-                    <div className="absolute bottom-20 right-[20%] w-72 h-72 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
-                </div>
+            {/* Hero Section with Search */}
+            <section className="relative overflow-hidden bg-white border-b border-gray-100">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
+                    <div className="flex flex-col md:flex-row items-center">
+                        <motion.div
+                            className="md:w-1/2 md:pr-12"
+                            initial={{ opacity: 0, x: -50 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.8, ease: "easeOut" }}
+                        >
+                            <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-[#111827] mb-4">
+                                Discover your potential with <span className="bg-gradient-to-r from-[#6C63FF] to-[#8A84FF] bg-clip-text text-transparent">LearnXtrade</span>
+                            </h1>
+                            <p className="text-[#6B7280] text-lg mb-8 md:max-w-lg">
+                                Explore courses taught by expert instructors across various disciplines. Learn at your own pace and track your progress.
+                            </p>
 
-                <div className="relative bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-20 md:py-28">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="flex flex-col md:flex-row items-center">
-                            <motion.div
-                                className="md:w-1/2 md:pr-12"
-                                initial={{ opacity: 0, x: -50 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ duration: 0.8, ease: "easeOut" }}
-                            >
-                                <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-                                    Learn. Trade. <span className="text-yellow-300">Grow.</span>
-                                </h1>
-                                <p className="text-blue-100 text-lg mb-8 md:max-w-lg">
-                                    Unlock your trading potential with interactive courses designed by experts. Join our vibrant community and transform your financial future.
-                                </p>
-                                <div className="flex flex-wrap gap-4">
-                                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
-                                        <Link
-                                            to="/signup"
-                                            className="bg-white text-blue-600 px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-300"
-                                        >
-                                            Get Started Free
-                                        </Link>
-                                    </motion.div>
-                                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
-                                        <a
-                                            href="#courses"
-                                            className="bg-blue-700 bg-opacity-60 backdrop-blur-sm text-white border border-blue-400 border-opacity-30 px-6 py-3 rounded-lg font-medium shadow-md hover:bg-opacity-80 transition-all duration-300"
-                                        >
-                                            Explore Courses
-                                        </a>
-                                    </motion.div>
+                            {/* Search bar */}
+                            <div className={`relative mb-8 transition-all duration-300 ${isSearchFocused ? 'scale-105' : ''}`}>
+                                <input
+                                    type="text"
+                                    placeholder="Search for any skill, course or educator..."
+                                    className="w-full px-5 py-4 pr-12 rounded-xl border border-gray-200 focus:border-[#6C63FF] focus:ring-2 focus:ring-[#6C63FF]/20 shadow-sm transition-all duration-300"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    onFocus={() => setIsSearchFocused(true)}
+                                    onBlur={() => setIsSearchFocused(false)}
+                                />
+                                <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#6B7280]" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+                                    </svg>
                                 </div>
+                            </div>
 
-                                <div className="flex items-center mt-10 text-sm text-blue-100">
-                                    <div className="flex -space-x-2 mr-3">
-                                        {[1, 2, 3, 4].map(i => (
-                                            <img
-                                                key={i}
-                                                src={`https://randomuser.me/api/portraits/${i % 2 ? 'men' : 'women'}/${20 + i}.jpg`}
-                                                alt="User"
-                                                className="h-8 w-8 rounded-full border-2 border-blue-600"
-                                            />
-                                        ))}
-                                    </div>
-                                    <span>Join <span className="font-bold text-white">15,000+</span> learners today</span>
-                                </div>
-                            </motion.div>
+                            <div className="flex flex-wrap gap-4">
+                                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
+                                    <Link
+                                        to="/signup"
+                                        className="bg-gradient-to-r from-[#6C63FF] to-[#5046E5] text-white px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-300"
+                                    >
+                                        Start Learning
+                                    </Link>
+                                </motion.div>
+                                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
+                                    <Link
+                                        to="/educator-signup"
+                                        className="bg-white text-[#6C63FF] border border-[#6C63FF] px-6 py-3 rounded-lg font-medium hover:bg-indigo-50 transition-all duration-300"
+                                    >
+                                        Become an Educator
+                                    </Link>
+                                </motion.div>
+                            </div>
+                        </motion.div>
 
-                            <motion.div
-                                className="md:w-1/2 mt-12 md:mt-0"
-                                initial={{ opacity: 0, y: 50 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-                            >
-                                <div className="relative w-full max-w-md mx-auto">
-                                    <div className="absolute -top-4 -left-4 w-full h-full bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl transform -rotate-2"></div>
-                                    <img
-                                        src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80"
-                                        alt="Trading visualization"
-                                        className="relative rounded-xl shadow-2xl transform rotate-2 hover:rotate-0 transition-transform duration-500"
-                                    />
-                                </div>
-                            </motion.div>
-                        </div>
+                        <motion.div
+                            className="md:w-1/2 mt-12 md:mt-0"
+                            initial={{ opacity: 0, y: 50 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+                        >
+                            <div className="relative w-full max-w-md mx-auto">
+                                <div className="absolute -top-4 -left-4 w-full h-full bg-[#6C63FF]/10 rounded-xl transform -rotate-6"></div>
+                                <img
+                                    src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80"
+                                    alt="Online learning illustration"
+                                    className="relative rounded-xl shadow-2xl transform rotate-3 hover:rotate-0 transition-transform duration-500"
+                                />
+                            </div>
+                        </motion.div>
                     </div>
                 </div>
             </section>
 
             {/* Stats Counter Section */}
-            <section className="py-12 -mt-6 relative z-10">
+            <section className="py-12 bg-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <motion.div
-                        className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-white rounded-xl shadow-xl p-8"
+                        className="grid grid-cols-1 md:grid-cols-3 gap-6"
                         ref={statsRef}
                         initial="hidden"
                         animate={statsInView ? "visible" : "hidden"}
                         variants={staggerContainer}
                     >
-                        <motion.div className="flex flex-col items-center" variants={scaleIn}>
-                            <span className="text-4xl font-bold text-blue-600">
+                        <motion.div className="flex flex-col items-center py-8 px-4 rounded-xl bg-gradient-to-r from-[#6C63FF]/5 to-[#8A84FF]/5" variants={fadeIn}>
+                            <div className="text-5xl font-bold bg-gradient-to-r from-[#6C63FF] to-[#8A84FF] bg-clip-text text-transparent mb-2">
                                 {statsInView && <CountUp end={stats.students} duration={2.5} separator="," />}+
-                            </span>
-                            <span className="text-gray-600 mt-1">Active Learners</span>
+                            </div>
+                            <span className="text-[#6B7280]">Active Learners</span>
                         </motion.div>
 
-                        <motion.div className="flex flex-col items-center" variants={scaleIn}>
-                            <span className="text-4xl font-bold text-blue-600">
+                        <motion.div className="flex flex-col items-center py-8 px-4 rounded-xl bg-gradient-to-r from-[#00C49A]/5 to-teal-500/5" variants={fadeIn}>
+                            <div className="text-5xl font-bold bg-gradient-to-r from-[#00C49A] to-teal-500 bg-clip-text text-transparent mb-2">
                                 {statsInView && <CountUp end={stats.courses} duration={2.5} />}+
-                            </span>
-                            <span className="text-gray-600 mt-1">Quality Courses</span>
+                            </div>
+                            <span className="text-[#6B7280]">Quality Courses</span>
                         </motion.div>
 
-                        <motion.div className="flex flex-col items-center" variants={scaleIn}>
-                            <span className="text-4xl font-bold text-blue-600">
+                        <motion.div className="flex flex-col items-center py-8 px-4 rounded-xl bg-gradient-to-r from-[#F59E0B]/5 to-amber-500/5" variants={fadeIn}>
+                            <div className="text-5xl font-bold bg-gradient-to-r from-[#F59E0B] to-amber-500 bg-clip-text text-transparent mb-2">
                                 {statsInView && <CountUp end={stats.instructors} duration={2.5} />}+
-                            </span>
-                            <span className="text-gray-600 mt-1">Expert Instructors</span>
+                            </div>
+                            <span className="text-[#6B7280]">Expert Instructors</span>
                         </motion.div>
                     </motion.div>
                 </div>
             </section>
 
-            {/* Trending Courses with Auto-Carousel */}
-            <section className="py-12 bg-white">
+            {/* Categories Filter Section */}
+            <section id="categories" className="py-12 bg-[#F9FAFB]">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <motion.div
+                        className="mb-10"
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        <h2 className="text-3xl font-bold text-[#111827] mb-2">Explore Categories</h2>
+                        <p className="text-[#6B7280] max-w-2xl">
+                            Browse our wide range of courses and find exactly what you're looking for
+                        </p>
+                    </motion.div>
+
+                    <motion.div
+                        className="flex flex-wrap justify-center gap-4 mb-10"
+                        variants={staggerContainer}
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true }}
+                    >
+                        {categories.map(category => (
+                            <motion.button
+                                key={category.id}
+                                variants={fadeIn}
+                                className={`px-5 py-3 rounded-full text-sm font-medium transition-all duration-300 flex items-center shadow-sm
+                  ${activeCategory === category.name ? 'bg-[#6C63FF] text-white' : 'bg-white text-[#6B7280] hover:bg-gray-50'}`}
+                                onClick={() => setActiveCategory(category.name)}
+                                whileHover={{ y: -2 }}
+                                whileTap={{ y: 0 }}
+                            >
+                                <span className="mr-2">{category.icon}</span>
+                                {category.name}
+                            </motion.button>
+                        ))}
+                    </motion.div>
+                </div>
+            </section>
+
+            {/* Course Cards Section */}
+            <section id="courses" className="py-12 bg-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center mb-10">
                         <motion.h2
-                            className="text-3xl font-bold text-gray-800"
+                            className="text-3xl font-bold text-[#111827]"
                             initial={{ opacity: 0, x: -20 }}
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.5 }}
                         >
-                            Trending Now 🔥
+                            Popular Courses
                         </motion.h2>
                         <motion.a
-                            href="#courses"
-                            className="text-blue-600 hover:text-blue-800 font-medium flex items-center"
+                            href="#viewall"
+                            className="text-[#6C63FF] hover:text-indigo-800 font-medium flex items-center"
                             initial={{ opacity: 0, x: 20 }}
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
@@ -474,133 +500,8 @@ export default function Home() {
                         </motion.a>
                     </div>
 
-                    <Swiper
-                        effect={'coverflow'}
-                        grabCursor={true}
-                        centeredSlides={true}
-                        slidesPerView={'auto'}
-                        coverflowEffect={{
-                            rotate: 0,
-                            stretch: 0,
-                            depth: 100,
-                            modifier: 2.5,
-                        }}
-                        autoplay={{
-                            delay: 3000,
-                            disableOnInteraction: false,
-                        }}
-                        pagination={{ clickable: true }}
-                        navigation={true}
-                        modules={[EffectCoverflow, Pagination, Navigation, Autoplay]}
-                        className="mySwiper"
-                    >
-                        {trendingCourses.map(course => (
-                            <SwiperSlide key={course.id} className="w-80 sm:w-96">
-                                <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 m-4 h-[420px] relative group">
-                                    <div className="absolute top-3 right-3 bg-yellow-400 text-gray-800 px-2 py-1 rounded-full text-xs font-bold z-10">
-                                        Trending
-                                    </div>
-                                    <div className="h-48 overflow-hidden relative">
-                                        <img
-                                            src={course.image}
-                                            alt={course.title}
-                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                        />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent">
-                                            <div className="absolute bottom-4 left-4">
-                                                <span className="px-2 py-1 bg-white/90 text-blue-600 text-xs font-bold rounded-md backdrop-blur-sm">
-                                                    {course.category}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="p-5">
-                                        <div className="flex items-center justify-between mb-2">
-                                            <div className="flex items-center">
-                                                {renderStars(course.rating)}
-                                                <span className="ml-1 text-sm text-gray-500">({course.students.toLocaleString()})</span>
-                                            </div>
-                                        </div>
-                                        <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">{course.title}</h3>
-                                        <p className="text-sm text-gray-600 mb-4 line-clamp-2">{course.description}</p>
-                                        <div className="flex items-center text-sm text-gray-500 mb-4">
-                                            <img
-                                                src={`https://randomuser.me/api/portraits/${course.id % 2 ? 'men' : 'women'}/${20 + course.id}.jpg`}
-                                                alt={course.educator}
-                                                className="h-6 w-6 rounded-full mr-2 border border-gray-200"
-                                            />
-                                            <span>{course.educator}</span>
-                                        </div>
-                                        <div className="absolute bottom-4 left-5 right-5 flex justify-between items-center">
-                                            <span className="font-bold text-blue-600">50 Credits</span>
-                                            <motion.button
-                                                className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-md transition-all"
-                                                whileHover={{ scale: 1.05 }}
-                                                whileTap={{ scale: 0.95 }}
-                                            >
-                                                Enroll Now
-                                            </motion.button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </SwiperSlide>
-                        ))}
-                    </Swiper>
-                </div>
-            </section>
-
-            {/* Categories Section with Interaction */}
-            <section className="py-12 bg-gray-50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <motion.div
-                        className="mb-10 text-center"
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.5 }}
-                    >
-                        <h2 className="text-3xl font-bold text-gray-800 mb-2">Explore Categories</h2>
-                        <p className="text-gray-600 max-w-2xl mx-auto">
-                            Browse our wide range of courses across different categories tailored to help you succeed in trading
-                        </p>
-                    </motion.div>
-
-                    <motion.div
-                        className="flex flex-wrap justify-center gap-4 mb-10"
-                        variants={staggerContainer}
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true }}
-                    >
-                        <motion.button
-                            variants={fadeIn}
-                            className={`px-5 py-3 rounded-full text-sm font-medium transition-all duration-300 
-                ${activeCategory === null ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-gray-700 hover:bg-gray-100'}`}
-                            onClick={() => setActiveCategory(null)}
-                            whileHover={{ y: -2 }}
-                            whileTap={{ y: 0 }}
-                        >
-                            All Categories
-                        </motion.button>
-
-                        {categories.map(category => (
-                            <motion.button
-                                key={category.id}
-                                variants={fadeIn}
-                                className={`px-5 py-3 rounded-full text-sm font-medium transition-all duration-300 flex items-center 
-                  ${activeCategory === category.name ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-gray-700 hover:bg-gray-100'}`}
-                                onClick={() => setActiveCategory(activeCategory === category.name ? null : category.name)}
-                                whileHover={{ y: -2 }}
-                                whileTap={{ y: 0 }}
-                            >
-                                <span className="mr-2">{category.icon}</span>
-                                {category.name}
-                            </motion.button>
-                        ))}
-                    </motion.div>
-
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {filterCoursesByCategory(activeCategory).map(course => (
+                        {filteredCourses.map(course => (
                             <motion.div
                                 key={course.id}
                                 className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300 group"
@@ -610,42 +511,15 @@ export default function Home() {
                                 transition={{ duration: 0.5 }}
                                 whileHover={{ y: -5 }}
                             >
-                                <div className="h-48 overflow-hidden">
+                                <div className="h-48 overflow-hidden relative">
                                     <img
                                         src={course.image}
                                         alt={course.title}
-                                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                     />
-                                </div>
-                                <div className="p-6">
-                                    <div className="flex items-center justify-between mb-2">
-                                        <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
-                                            {course.category}
-                                        </span>
-                                        {renderStars(course.rating)}
-                                    </div>
-                                    <h3 className="text-lg font-semibold text-gray-800 mb-2 group-hover:text-blue-600 transition-colors">{course.title}</h3>
-                                    <p className="text-sm text-gray-600 mb-4 line-clamp-2">{course.description}</p>
-                                    <div className="flex items-center text-sm text-gray-500 mb-4">
-                                        <img
-                                            src={`https://randomuser.me/api/portraits/${course.id % 2 ? 'men' : 'women'}/${20 + course.id}.jpg`}
-                                            alt={course.educator}
-                                            className="h-6 w-6 rounded-full mr-2 border border-gray-200"
-                                        />
-                                        <span>{course.educator}</span>
-                                        <span className="mx-2">•</span>
-                                        <span>{course.students.toLocaleString()} students</span>
-                                    </div>
-                                    <div className="flex justify-between items-center">
-                                        <div className="text-blue-600 font-bold flex items-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                                                <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
-                                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd" />
-                                            </svg>
-                                            50 Credits
-                                        </div>
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
                                         <motion.button
-                                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+                                            className="bg-[#6C63FF] text-white py-2 rounded-lg transform translate-y-4 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300"
                                             whileHover={{ scale: 1.05 }}
                                             whileTap={{ scale: 0.95 }}
                                         >
@@ -653,15 +527,50 @@ export default function Home() {
                                         </motion.button>
                                     </div>
                                 </div>
+                                <div className="p-5">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="px-3 py-1 bg-[#6C63FF]/10 text-[#6C63FF] text-xs font-bold rounded-full">
+                                            {course.category}
+                                        </span>
+                                        {renderStars(course.rating)}
+                                    </div>
+                                    <h3 className="text-lg font-semibold text-[#111827] mb-2 group-hover:text-[#6C63FF] transition-colors">{course.title}</h3>
+                                    <p className="text-sm text-[#6B7280] mb-4 line-clamp-2">{course.description}</p>
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center">
+                                            <img
+                                                src={`https://randomuser.me/api/portraits/${course.id % 2 ? 'men' : 'women'}/${20 + course.id}.jpg`}
+                                                alt={course.educator}
+                                                className="h-8 w-8 rounded-full mr-2 border-2 border-white shadow-sm"
+                                            />
+                                            <div>
+                                                <p className="text-xs text-[#6B7280]">Instructor</p>
+                                                <p className="text-sm font-medium text-[#111827]">{course.educator}</p>
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-xs text-[#6B7280]">Students</p>
+                                            <p className="text-sm font-medium text-[#111827]">{course.students.toLocaleString()}</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </motion.div>
                         ))}
                     </div>
 
-                    {activeCategory && (
+                    {filteredCourses.length === 0 && (
+                        <div className="text-center py-12">
+                            <div className="text-5xl mb-4">🔍</div>
+                            <h3 className="text-xl font-medium text-[#111827] mb-2">No courses found</h3>
+                            <p className="text-[#6B7280]">Try selecting a different category</p>
+                        </div>
+                    )}
+
+                    {activeCategory !== 'All' && filteredCourses.length > 0 && (
                         <div className="text-center mt-10">
                             <motion.button
-                                className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
-                                onClick={() => setActiveCategory(null)}
+                                className="px-6 py-3 border border-[#6C63FF] text-[#6C63FF] rounded-lg hover:bg-indigo-50 transition-colors font-medium"
+                                onClick={() => setActiveCategory('All')}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                             >
@@ -672,165 +581,130 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* Why LearnXtrade Section with Animations */}
-            <section id="features" className="py-16 bg-white">
+            {/* Gamification Section */}
+            <section className="py-16 bg-[#F9FAFB]">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <motion.div
-                        className="text-center mb-12"
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.5 }}
-                    >
-                        <h2 className="text-3xl font-bold text-gray-800 mb-4">Why Choose LearnXtrade?</h2>
-                        <p className="text-gray-600 max-w-2xl mx-auto">
-                            Our platform offers unique features designed to enhance your learning experience and help you build valuable trading skills.
-                        </p>
-                    </motion.div>
-
-                    <motion.div
-                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
-                        ref={featuresRef}
-                        variants={staggerContainer}
-                        initial="hidden"
-                        animate={featuresInView ? "visible" : "hidden"}
-                    >
-                        {features.map(feature => (
-                            <motion.div
-                                key={feature.id}
-                                className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-all duration-300 group"
-                                variants={scaleIn}
-                                whileHover={{ y: -5 }}
-                            >
-                                <div className="mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                                    {feature.icon}
-                                </div>
-                                <h3 className="text-lg font-semibold text-gray-800 mb-2 group-hover:text-blue-600 transition-colors">{feature.title}</h3>
-                                <p className="text-gray-600 text-sm">{feature.description}</p>
-                            </motion.div>
-                        ))}
-                    </motion.div>
-                </div>
-            </section>
-
-            {/* Testimonials with Carousel */}
-            <section id="testimonials" className="py-16 bg-gray-50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <motion.div
-                        className="text-center mb-12"
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.5 }}
-                    >
-                        <h2 className="text-3xl font-bold text-gray-800 mb-4">What Our Students Say</h2>
-                        <p className="text-gray-600 max-w-2xl mx-auto">
-                            Hear from our community of traders who have transformed their skills with LearnXtrade
-                        </p>
-                    </motion.div>
-
-                    <motion.div
-                        className="mt-12"
-                        ref={testimonialsRef}
-                        variants={fadeIn}
-                        initial="hidden"
-                        animate={testimonialsInView ? "visible" : "hidden"}
-                    >
-                        <Swiper
-                            slidesPerView={1}
-                            spaceBetween={30}
-                            autoplay={{
-                                delay: 4000,
-                                disableOnInteraction: false,
-                            }}
-                            pagination={{
-                                clickable: true,
-                            }}
-                            breakpoints={{
-                                640: {
-                                    slidesPerView: 1,
-                                },
-                                768: {
-                                    slidesPerView: 2,
-                                },
-                                1024: {
-                                    slidesPerView: 3,
-                                },
-                            }}
-                            modules={[Pagination, Autoplay]}
-                            className="testimonial-swiper py-10"
+                    <div className="flex flex-col md:flex-row gap-8">
+                        {/* Badges */}
+                        <motion.div
+                            className="md:w-1/2"
+                            initial={{ opacity: 0, x: -20 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.5 }}
                         >
-                            {testimonials.map(testimonial => (
-                                <SwiperSlide key={testimonial.id}>
-                                    <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100 h-full flex flex-col">
-                                        <div className="flex-1">
-                                            <div className="text-yellow-400 mb-4">
-                                                ★★★★★
+                            <div className="bg-white rounded-xl shadow-md p-6 h-full">
+                                <h3 className="text-xl font-bold text-[#111827] mb-6">Popular Badges</h3>
+                                <div className="grid grid-cols-2 gap-6">
+                                    {popularBadges.map(badge => (
+                                        <div key={badge.id} className="flex items-center p-4 rounded-lg border border-gray-100 hover:border-[#6C63FF]/20 hover:bg-[#6C63FF]/5 transition-colors group">
+                                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#F59E0B] to-amber-500 flex items-center justify-center text-2xl mr-4 shadow-md transform transition-transform duration-300 group-hover:scale-110">
+                                                {badge.icon}
                                             </div>
-                                            <p className="text-gray-600 italic mb-6">"{testimonial.text}"</p>
-                                        </div>
-                                        <div className="flex items-center">
-                                            <img
-                                                src={testimonial.image}
-                                                alt={testimonial.name}
-                                                className="w-12 h-12 rounded-full mr-4 border-2 border-blue-100"
-                                            />
                                             <div>
-                                                <h4 className="font-semibold text-gray-800">{testimonial.name}</h4>
-                                                <p className="text-sm text-gray-500">{testimonial.role}</p>
+                                                <h4 className="font-medium text-[#111827] group-hover:text-[#6C63FF] transition-colors">{badge.name}</h4>
+                                                <p className="text-xs text-[#6B7280]">{badge.achievers.toLocaleString()} achievers</p>
                                             </div>
                                         </div>
-                                    </div>
-                                </SwiperSlide>
-                            ))}
-                        </Swiper>
-                    </motion.div>
+                                    ))}
+                                </div>
+                            </div>
+                        </motion.div>
+
+                        {/* Leaderboard */}
+                        <motion.div
+                            className="md:w-1/2"
+                            initial={{ opacity: 0, x: 20 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.5 }}
+                        >
+                            <div className="bg-white rounded-xl shadow-md p-6 h-full">
+                                <h3 className="text-xl font-bold text-[#111827] mb-6">Leaderboard</h3>
+                                <div className="space-y-4">
+                                    {leaderboard.map((user, index) => (
+                                        <div key={user.id} className="flex items-center p-4 rounded-lg border border-gray-100 hover:border-[#6C63FF]/20 hover:bg-[#6C63FF]/5 transition-colors">
+                                            <div className="font-bold text-2xl text-[#6B7280] mr-4 w-6 text-center">{index + 1}</div>
+                                            <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full mr-4" />
+                                            <div className="flex-1">
+                                                <h4 className="font-medium text-[#111827]">{user.name}</h4>
+                                                <p className="text-xs text-[#6B7280]">{user.courses} courses completed</p>
+                                            </div>
+                                            <div className="bg-[#6C63FF]/10 text-[#6C63FF] font-medium text-sm py-1 px-3 rounded-full">
+                                                {user.points.toLocaleString()} pts
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="mt-6 text-center">
+                                    <button className="text-[#6C63FF] hover:text-indigo-800 font-medium text-sm">
+                                        View Full Leaderboard
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
                 </div>
             </section>
 
-            {/* Enhanced CTA Section */}
-            <section className="py-16 bg-gradient-to-r from-blue-600 to-indigo-600 text-white relative overflow-hidden">
+            {/* Become an Educator CTA */}
+            <section className="py-16 bg-gradient-to-r from-[#6C63FF] to-[#5046E5] text-white relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-full">
                     <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full -mt-20 -mr-20"></div>
                     <div className="absolute bottom-0 left-0 w-80 h-80 bg-white/10 rounded-full -mb-40 -ml-20"></div>
                 </div>
 
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.5 }}
-                    >
-                        <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to start your trading journey?</h2>
-                        <p className="text-blue-100 max-w-2xl mx-auto mb-8">
-                            Join thousands of students learning and mastering trading skills on LearnXtrade. Start for free today!
-                        </p>
-                        <motion.div
-                            className="inline-block"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            <Link
-                                to="/signup"
-                                className="inline-block bg-white text-blue-600 px-8 py-4 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-300"
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                    <div className="flex flex-col md:flex-row items-center">
+                        <div className="md:w-2/3 mb-8 md:mb-0">
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.5 }}
                             >
-                                Get Started for Free
-                            </Link>
-                        </motion.div>
-                        <p className="text-blue-200 mt-4 text-sm">No credit card required • Cancel anytime</p>
-                    </motion.div>
+                                <h2 className="text-3xl md:text-4xl font-bold mb-4">Share your knowledge with the world</h2>
+                                <p className="text-indigo-100 max-w-2xl mb-8">
+                                    Join our community of educators and help others learn valuable skills. Create courses, connect with learners, and earn credits for your expertise.
+                                </p>
+                                <motion.div
+                                    className="inline-block"
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    <Link
+                                        to="/educator-signup"
+                                        className="inline-block bg-white text-[#6C63FF] px-8 py-4 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-300"
+                                    >
+                                        Become an Educator
+                                    </Link>
+                                </motion.div>
+                            </motion.div>
+                        </div>
+                        <div className="md:w-1/3">
+                            <motion.img
+                                src="https://images.unsplash.com/photo-1571260899304-425eee4c7efc?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80"
+                                alt="Teaching illustration"
+                                className="rounded-xl shadow-2xl"
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                whileInView={{ opacity: 1, scale: 1 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.5 }}
+                            />
+                        </div>
+                    </div>
                 </div>
             </section>
 
             {/* Footer */}
-            <footer className="bg-gray-800 text-gray-300 py-12">
+            <footer className="bg-[#111827] text-gray-300 py-12">
+                {/* Footer content remains the same */}
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                         <div>
                             <h3 className="text-white text-lg font-semibold mb-4">LearnXtrade</h3>
                             <p className="text-gray-400 text-sm">
-                                Modern platform for learning trading skills, connecting with peers, and tracking your progress.
+                                A modern platform for learning new skills, connecting with educators, and tracking your progress.
                             </p>
                         </div>
                         <div>
@@ -866,54 +740,13 @@ export default function Home() {
                 </div>
             </footer>
 
-            {/* Add some custom styles for horizontal scrolling */}
+            {/* Custom styling for line clamp */}
             <style jsx>{`
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        
-        .hide-scrollbar {
-          -ms-overflow-style: none;  /* IE and Edge */
-          scrollbar-width: none;  /* Firefox */
-        }
-        
         .line-clamp-2 {
           display: -webkit-box;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
-        }
-        
-        .swiper-slide {
-          width: auto;
-          height: auto;
-        }
-        
-        .animate-blob {
-          animation: blob 7s infinite;
-        }
-        
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-        
-        .animation-delay-4000 {
-          animation-delay: 4s;
-        }
-        
-        @keyframes blob {
-          0% {
-            transform: translate(0px, 0px) scale(1);
-          }
-          33% {
-            transform: translate(30px, -50px) scale(1.1);
-          }
-          66% {
-            transform: translate(-20px, 20px) scale(0.9);
-          }
-          100% {
-            transform: translate(0px, 0px) scale(1);
-          }
         }
       `}</style>
         </div>

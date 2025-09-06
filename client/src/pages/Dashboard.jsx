@@ -101,7 +101,7 @@ export default function Dashboard() {
                         <div className="absolute -top-24 -right-24 w-64 h-64 bg-white/10 rounded-full"></div>
                         <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-black/10 to-transparent"></div>
                         <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-white/10 rounded-full"></div>
-                        
+
                         <div className="relative z-10">
                             <div className="flex items-center">
                                 <h2 className="text-2xl font-bold">Welcome back, {user.name}!</h2>
@@ -138,7 +138,7 @@ export default function Dashboard() {
                                 <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow duration-300 border border-gray-100 relative overflow-hidden">
                                     <div className="absolute -right-6 -top-6 w-24 h-24 bg-[#00C49A]/5 rounded-full"></div>
                                     <div className="absolute -left-6 -bottom-6 w-24 h-24 bg-[#00C49A]/5 rounded-full"></div>
-                                    
+
                                     <div className="relative">
                                         <div className="flex items-center">
                                             <div className="flex-shrink-0 bg-gradient-to-br from-[#00C49A] to-teal-500 text-white p-3 rounded-xl shadow-sm">
@@ -185,7 +185,7 @@ export default function Dashboard() {
                                 <div className="transition-all duration-500 ease-out">
                                     <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow duration-300 border border-gray-100 h-full flex flex-col relative overflow-hidden">
                                         <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-[#F59E0B]/5 rounded-full"></div>
-                                        
+
                                         <div className="relative">
                                             <div className="flex items-center justify-between">
                                                 <h3 className="text-lg font-semibold text-[#111827]">Trust Score</h3>
