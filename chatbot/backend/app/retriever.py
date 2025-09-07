@@ -1,9 +1,12 @@
 from qdrant_client import QdrantClient
 from sentence_transformers import SentenceTransformer
+import os
 
 embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
 
-qdrant = QdrantClient(host="localhost", port=6333)
+# Use Docker service name when running in Docker, localhost otherwise
+qdrant_host = os.getenv("QDRANT_HOST", "localhost")
+qdrant = QdrantClient(host=qdrant_host, port=6333)
 
 def retrieve_relevant_docs(question: str, subject: str, top_k: int = 5):
     question_embedding = embedding_model.encode(question).tolist()
