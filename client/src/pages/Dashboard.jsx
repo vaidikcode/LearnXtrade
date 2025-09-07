@@ -1,7 +1,69 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 export default function Dashboard() {
+    const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(true);
+
+    // Check if user is already logged in via auth cookies
+    useEffect(() => {
+        // Make a request to check authentication status
+        const checkAuthStatus = async () => {
+            try {
+                // Call the API endpoint for authentication verification
+                const userResponse = await axios.get(`${import.meta.env.VITE_SERVER_URL}/stdAuth`);
+                
+                // If request succeeds, user is authenticated via cookies
+                console.log("User authenticated:", userResponse.data);
+                
+                // Extract the student data from the response based on the API structure
+                const studentData = userResponse.data.student;
+                
+                if (studentData) {
+                    // Map API courses to the format expected by our UI
+                    const mappedCourses = studentData.courses.map(course => ({
+                        id: course.courseId?._id || course._id, // Get the _id from the nested courseId object
+                        courseIdObj: course.courseId, // Store the entire courseId object for reference
+                        title: course.courseId?.name || "Course Title",
+                        progress: course.isCompleted ? 100 : 20, // Simplified progress calculation
+                        instructor: course.courseId?.creator || "Instructor",
+                        description: course.courseId?.description || "",
+                        image: course.courseId?.photo || "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                        createdAt: course.courseId?.createdAt || "",
+                        updatedAt: course.courseId?.updatedAt || "",
+                        courseCredits: course.courseId?.credits || 0,
+                        isCompleted: course.isCompleted || false
+                    }));
+                    
+                    // Update user state with data from API
+                    setUser(prevUser => ({
+                        ...prevUser,
+                        name: studentData.name || "Student",
+                        email: studentData.email || "",
+                        credits: studentData.credits || 0,
+                        profilePicture: studentData.profilePicture || "",
+                        role: "student",
+                        enrolledCourses: mappedCourses,
+                        userId: studentData._id || "",
+                        // Keep some default values for fields not provided by API
+                        trustScore: studentData.trustScore || prevUser.trustScore,
+                        badges: prevUser.badges, // Keep default badges for now
+                        notifications: prevUser.notifications, // Keep default notifications
+                        recommendedCourses: prevUser.recommendedCourses
+                    }));
+                }
+                
+                setIsLoading(false);
+            } catch (error) {
+                console.error("Authentication error:", error);
+                navigate('/login');
+            }
+        };
+        
+        checkAuthStatus();
+    }, [navigate]);
+
     const [user, setUser] = useState({
         name: "Alex Johnson",
         role: "student", // "student" or "educator"
@@ -39,7 +101,9 @@ export default function Dashboard() {
 
     const handleContinueCourse = (courseId) => {
         console.log(`Continue course ${courseId} clicked`);
-        // In a real app, this would navigate to the course page
+        // Navigate to the course detail page with the correct courseId
+        // The courseId should be from the courseId._id property in the API response
+        navigate(`/course/${courseId}`);
     };
 
     const handleBecomeConsultant = () => {
@@ -71,9 +135,19 @@ export default function Dashboard() {
                                     onClick={() => setIsMenuOpen(!isMenuOpen)}
                                     className="flex items-center space-x-2 focus:outline-none"
                                 >
-                                    <div className="h-9 w-9 rounded-full bg-gradient-to-br from-[#6C63FF] to-[#5046E5] flex items-center justify-center text-white font-semibold shadow-md">
-                                        {user.name.charAt(0)}
-                                    </div>
+                                    {user.profilePicture ? (
+                                        <div className="h-9 w-9 rounded-full overflow-hidden shadow-md border-2 border-white">
+                                            <img 
+                                                src={user.profilePicture} 
+                                                alt={user.name}
+                                                className="h-full w-full object-cover" 
+                                            />
+                                        </div>
+                                    ) : (
+                                        <div className="h-9 w-9 rounded-full bg-gradient-to-br from-[#6C63FF] to-[#5046E5] flex items-center justify-center text-white font-semibold shadow-md">
+                                            {user.name?.charAt(0) || "U"}
+                                        </div>
+                                    )}
                                     <span className="hidden md:block text-sm font-medium text-[#111827]">{user.name}</span>
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#6B7280]" viewBox="0 0 20 20" fill="currentColor">
                                         <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -110,7 +184,7 @@ export default function Dashboard() {
                                 </div>
                             </div>
                             <p className="mt-1 text-indigo-100 text-sm">
-                                Last login: Today, 9:45 AM
+                                {user.email}
                             </p>
 
                             <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -118,10 +192,13 @@ export default function Dashboard() {
                                     <span className="font-medium">{user.enrolledCourses.length}</span> Courses in Progress
                                 </div>
                                 <div className="bg-white/20 px-4 py-2 rounded-lg text-sm backdrop-blur-sm border border-white/10">
-                                    <span className="font-medium">{user.badges.length}</span> Badges Earned
+                                    <span className="font-medium">{user.credits}</span> Credits Available
+                                </div>
+                                <div className="bg-white/20 px-4 py-2 rounded-lg text-sm backdrop-blur-sm border border-white/10">
+                                    <span className="font-medium">{user.badges?.length || 0}</span> Badges Earned
                                 </div>
                                 <button className="ml-auto bg-white text-[#6C63FF] px-5 py-2 rounded-lg font-medium hover:bg-opacity-90 transition shadow-sm">
-                                    View Progress
+                                    View Profile
                                 </button>
                             </div>
                         </div>
@@ -155,6 +232,7 @@ export default function Dashboard() {
                                         <div className="mt-5">
                                             <div className="text-3xl font-bold text-[#111827]">{user.credits}</div>
                                             <p className="text-[#6B7280] text-sm">Available Credits</p>
+                                            <p className="text-[#00C49A] text-xs mt-1">User ID: {user.userId ? user.userId.substring(0, 8) + '...' : 'Loading...'}</p>
                                         </div>
 
                                         <div className="mt-6 grid grid-cols-2 gap-3">
@@ -293,57 +371,92 @@ export default function Dashboard() {
                                 <div className="p-6">
                                     {activeTab === 'enrolled' ? (
                                         <div className="space-y-5">
-                                            {user.enrolledCourses.map(course => (
-                                                <div key={course.id} className="flex flex-col md:flex-row border border-gray-100 rounded-xl overflow-hidden hover:shadow-md transition-shadow duration-300 group">
-                                                    <div className="md:w-48 h-32 md:h-auto relative overflow-hidden">
-                                                        <img
-                                                            src={course.image}
-                                                            alt={course.title}
-                                                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                                                        />
-                                                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                                    </div>
-                                                    <div className="p-5 flex-1 flex flex-col">
-                                                        <h4 className="text-lg font-semibold text-[#111827] group-hover:text-[#6C63FF] transition-colors duration-200">{course.title}</h4>
-                                                        <div className="flex items-center mt-1">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#6B7280]" viewBox="0 0 20 20" fill="currentColor">
-                                                                <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                                                            </svg>
-                                                            <p className="text-sm text-[#6B7280] ml-1">{course.instructor}</p>
-                                                        </div>
-
-                                                        <div className="mt-auto pt-4">
-                                                            <div className="flex items-center justify-between">
-                                                                <div className="w-full max-w-xs">
-                                                                    <div className="flex justify-between text-xs mb-1">
-                                                                        <span className="text-[#6B7280]">Progress</span>
-                                                                        <span className={`font-medium ${course.progress >= 75 ? 'text-[#00C49A]' :
-                                                                            course.progress >= 25 ? 'text-[#6C63FF]' : 'text-[#6B7280]'
-                                                                            }`}>{course.progress}%</span>
-                                                                    </div>
-                                                                    <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                                                                        <div
-                                                                            className={`h-full rounded-full ${course.progress >= 75 ? 'bg-[#00C49A]' :
-                                                                                course.progress >= 25 ? 'bg-[#6C63FF]' : 'bg-gray-400'
-                                                                                }`}
-                                                                            style={{ width: `${course.progress}%`, transition: 'width 1s ease-in-out' }}
-                                                                        ></div>
-                                                                    </div>
+                                            {user.enrolledCourses.length > 0 ? (
+                                                user.enrolledCourses.map(course => (
+                                                    <div key={course.id} className="flex flex-col md:flex-row border border-gray-100 rounded-xl overflow-hidden hover:shadow-md transition-shadow duration-300 group">
+                                                        <div className="md:w-48 h-32 md:h-auto relative overflow-hidden">
+                                                            <img
+                                                                src={course.image}
+                                                                alt={course.title}
+                                                                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                                            />
+                                                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                                            {course.courseCredits > 0 && (
+                                                                <div className="absolute top-2 right-2 bg-[#00C49A]/90 text-white text-xs rounded-full px-2 py-1 font-medium">
+                                                                    {course.courseCredits} Credits
                                                                 </div>
-                                                                <button
-                                                                    onClick={() => handleContinueCourse(course.id)}
-                                                                    className="ml-4 px-5 py-2 bg-[#6C63FF] text-white text-sm rounded-xl hover:bg-indigo-600 transition-colors duration-200 shadow-sm flex items-center"
-                                                                >
-                                                                    <span>Continue</span>
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
-                                                                        <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                                                                    </svg>
-                                                                </button>
+                                                            )}
+                                                        </div>
+                                                        <div className="p-5 flex-1 flex flex-col">
+                                                            <h4 className="text-lg font-semibold text-[#111827] group-hover:text-[#6C63FF] transition-colors duration-200">{course.title}</h4>
+                                                            <div className="flex items-center mt-1">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#6B7280]" viewBox="0 0 20 20" fill="currentColor">
+                                                                    <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                                                                </svg>
+                                                                <p className="text-sm text-[#6B7280] ml-1">{course.instructor}</p>
+                                                            </div>
+                                                            
+                                                            {course.description && (
+                                                                <p className="text-sm text-[#6B7280] mt-2 line-clamp-2">
+                                                                    {course.description}
+                                                                </p>
+                                                            )}
+                                                            
+                                                            <div className="mt-2 flex flex-wrap gap-2">
+                                                                <span className="text-xs bg-indigo-50 text-[#6C63FF] px-2 py-1 rounded-md">
+                                                                    {new Date(course.createdAt).toLocaleDateString()}
+                                                                </span>
+                                                                <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-md">
+                                                                    {course.isCompleted ? 'Completed' : 'In Progress'}
+                                                                </span>
+                                                            </div>
+
+                                                            <div className="mt-auto pt-4">
+                                                                <div className="flex items-center justify-between">
+                                                                    <div className="w-full max-w-xs">
+                                                                        <div className="flex justify-between text-xs mb-1">
+                                                                            <span className="text-[#6B7280]">Progress</span>
+                                                                            <span className={`font-medium ${course.progress >= 75 ? 'text-[#00C49A]' :
+                                                                                course.progress >= 25 ? 'text-[#6C63FF]' : 'text-[#6B7280]'
+                                                                                }`}>{course.progress}%</span>
+                                                                        </div>
+                                                                        <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                                                                            <div
+                                                                                className={`h-full rounded-full ${course.progress >= 75 ? 'bg-[#00C49A]' :
+                                                                                    course.progress >= 25 ? 'bg-[#6C63FF]' : 'bg-gray-400'
+                                                                                    }`}
+                                                                                style={{ width: `${course.progress}%`, transition: 'width 1s ease-in-out' }}
+                                                                            ></div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <button
+                                                                        onClick={() => handleContinueCourse(course.id)}
+                                                                        className="ml-4 px-5 py-2 bg-[#6C63FF] text-white text-sm rounded-xl hover:bg-indigo-600 transition-colors duration-200 shadow-sm flex items-center"
+                                                                    >
+                                                                        <span>Continue</span>
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                                                                            <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                                                                        </svg>
+                                                                    </button>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
+                                                ))
+                                            ) : (
+                                                <div className="flex flex-col items-center justify-center py-10">
+                                                    <div className="bg-indigo-50 p-3 rounded-full">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[#6C63FF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                                        </svg>
+                                                    </div>
+                                                    <h3 className="mt-4 text-lg font-medium text-gray-900">No courses enrolled</h3>
+                                                    <p className="mt-1 text-sm text-gray-500">Browse our course catalog to start your learning journey!</p>
+                                                    <button className="mt-4 px-4 py-2 bg-[#6C63FF] text-white text-sm rounded-xl hover:bg-indigo-600">
+                                                        Browse Courses
+                                                    </button>
                                                 </div>
-                                            ))}
+                                            )}
                                         </div>
                                     ) : (
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -538,6 +651,48 @@ export default function Dashboard() {
                     </div>
                 </div>
             </main>
+                        <footer className="bg-[#111827] text-gray-300 py-12">
+                {/* Footer content remains the same */}
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                        <div>
+                            <h3 className="text-white text-lg font-semibold mb-4">LearnXtrade</h3>
+                            <p className="text-gray-400 text-sm">
+                                A modern platform for learning new skills, connecting with educators, and tracking your progress.
+                            </p>
+                        </div>
+                        <div>
+                            <h4 className="text-white font-medium mb-4">Quick Links</h4>
+                            <ul className="space-y-2">
+                                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Courses</a></li>
+                                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Categories</a></li>
+                                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Pricing</a></li>
+                                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Features</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 className="text-white font-medium mb-4">Company</h4>
+                            <ul className="space-y-2">
+                                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">About Us</a></li>
+                                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Contact</a></li>
+                                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Careers</a></li>
+                                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Blog</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 className="text-white font-medium mb-4">Legal</h4>
+                            <ul className="space-y-2">
+                                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Terms of Service</a></li>
+                                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</a></li>
+                                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Cookie Policy</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div className="mt-12 pt-8 border-t border-gray-700 text-sm text-gray-400 text-center">
+                        <p>© {new Date().getFullYear()} LearnXtrade. All rights reserved.</p>
+                    </div>
+                </div>
+            </footer>
         </div>
     );
 }

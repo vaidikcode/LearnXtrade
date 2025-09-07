@@ -27,7 +27,7 @@ const courseSchema = new mongoose.Schema({
   credits : {
     type : Number,
     required : true,
-    default : 0
+    default : 350
   },
   content : [{
     type : { type : String },

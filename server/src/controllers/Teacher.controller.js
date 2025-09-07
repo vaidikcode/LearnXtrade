@@ -126,4 +126,12 @@ const addCourseContent = asyncHandler(async (req, res) => {
     });
 });
 
-export {registerTeacher, loginTeacher, addCourseContent}
+const getMyCourses = asyncHandler(async (req, res) => {
+    const teacher = req.teacher;
+
+    const courses = await Course.find({ creator: teacher._id });
+
+    res.status(200).json({ courses, message: 'Courses fetched successfully' });
+});
+
+export {registerTeacher, loginTeacher, addCourseContent, getMyCourses}

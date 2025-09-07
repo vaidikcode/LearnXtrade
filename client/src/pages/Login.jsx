@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import axios from "axios";
+
+// Configure axios defaults with environment variable
+axios.defaults.baseURL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000/api'; 
+axios.defaults.withCredentials = true; // Allow cookies to be sent with requests
 
 const initialState = {
     email: "",
     password: "",
+    userType: "student" // Default to student login
 };
 
 export default function Login() {
@@ -13,6 +19,8 @@ export default function Login() {
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    
+
 
     const validate = () => {
         const errs = {};
@@ -26,7 +34,10 @@ export default function Login() {
         setErrors({ ...errors, [e.target.name]: undefined });
     };
 
-    const handleSubmit = (e) => {
+    // Add state for API error messages
+    const [apiError, setApiError] = useState("");
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const validationErrors = validate();
         if (Object.keys(validationErrors).length) {
@@ -34,13 +45,49 @@ export default function Login() {
             return;
         }
 
-        // Simulate login process
+        // Clear any previous API errors
+        setApiError("");
         setIsLoading(true);
-        setTimeout(() => {
-            console.log("Login attempt with:", form);
+        
+        try {
+            // Determine API endpoint based on user type
+            const endpoint = form.userType === "teacher" 
+                ? "/teacher/login" 
+                : "/student/login";
+                
+            // Send login request to the appropriate API endpoint
+            const response = await axios.post(endpoint, {
+                email: form.email,
+                password: form.password
+            });
+            
+            // Handle successful login
+            console.log("Login successful:", response.data);
+            
+            // No need to store tokens in localStorage as backend handles auth via HTTP-only cookies
+            
+            // Redirect based on user type
+            if (form.userType === "teacher") {
+                navigate('/teacher-dashboard');
+            } else {
+                navigate('/dashboard'); // Student dashboard
+            }
+        } catch (error) {
+            console.error("Login error:", error);
+            // Handle error responses
+            if (error.response) {
+                // The server responded with an error status
+                setApiError(error.response.data.message || "Invalid credentials. Please try again.");
+            } else if (error.request) {
+                // The request was made but no response was received
+                setApiError("Network error. Please check your connection and try again.");
+            } else {
+                // Something happened in setting up the request
+                setApiError("An error occurred. Please try again.");
+            }
+        } finally {
             setIsLoading(false);
-            navigate('/dashboard'); // Redirect to dashboard after login
-        }, 1500);
+        }
     };
 
     return (
@@ -63,7 +110,7 @@ export default function Login() {
                                 Welcome back
                             </h2>
                             <p className="mt-2 text-sm text-gray-600">
-                                Log in to your LearnXtrade account to continue your learning journey
+                                Log in to your LearnXtrade account as a {form.userType === "teacher" ? "teacher" : "student"}
                             </p>
                         </motion.div>
                     </div>
@@ -75,6 +122,43 @@ export default function Login() {
                         transition={{ duration: 0.5, delay: 0.3 }}
                     >
                         <form onSubmit={handleSubmit} className="space-y-6">
+                            {/* User Type Selection */}
+                            <div>
+                                <label htmlFor="userType" className="block text-sm font-medium text-gray-700 mb-1">
+                                    I am a
+                                </label>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => setForm({ ...form, userType: "student" })}
+                                        className={`flex items-center justify-center py-3 px-4 rounded-lg border ${
+                                            form.userType === "student" 
+                                                ? "bg-[#6C63FF]/10 border-[#6C63FF] text-[#6C63FF]" 
+                                                : "border-gray-300 hover:border-gray-400 text-gray-700"
+                                        } transition-colors`}
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 mr-2 ${form.userType === "student" ? "text-[#6C63FF]" : "text-gray-500"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                        </svg>
+                                        Student
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setForm({ ...form, userType: "teacher" })}
+                                        className={`flex items-center justify-center py-3 px-4 rounded-lg border ${
+                                            form.userType === "teacher" 
+                                                ? "bg-[#6C63FF]/10 border-[#6C63FF] text-[#6C63FF]" 
+                                                : "border-gray-300 hover:border-gray-400 text-gray-700"
+                                        } transition-colors`}
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 mr-2 ${form.userType === "teacher" ? "text-[#6C63FF]" : "text-gray-500"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5H15M9 11l3 3m0 0l3-3m-3 3V8" />
+                                        </svg>
+                                        Teacher
+                                    </button>
+                                </div>
+                            </div>
+
                             <div>
                                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                                     Email address
@@ -167,6 +251,22 @@ export default function Login() {
                                     </label>
                                 </div>
                             </div>
+
+                            {/* API Error Message Display */}
+                            {apiError && (
+                                <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
+                                    <div className="flex">
+                                        <div className="flex-shrink-0">
+                                            <svg className="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                            </svg>
+                                        </div>
+                                        <div className="ml-3">
+                                            <p className="text-sm text-red-700">{apiError}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             <div>
                                 <motion.button

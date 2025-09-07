@@ -323,8 +323,21 @@ export default function Home() {
             </header>
 
             {/* Hero Section with Search */}
-            <section className="relative overflow-hidden bg-white border-b border-gray-100">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
+            <section className="relative overflow-hidden bg-gradient-to-br from-indigo-50 via-white to-purple-50 border-b border-gray-100">
+                <div className="absolute inset-0">
+                    <div className="absolute inset-y-0 right-0">
+                        <svg className="h-full w-1/2 text-indigo-50 opacity-60" viewBox="0 0 100 100" preserveAspectRatio="none" fill="currentColor">
+                            <polygon points="0,0 100,0 100,100" />
+                        </svg>
+                    </div>
+                </div>
+
+                {/* Animated circles in background */}
+                <div className="absolute top-0 left-0 w-32 h-32 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000"></div>
+                <div className="absolute bottom-0 left-0 w-32 h-32 bg-indigo-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000"></div>
+
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28 relative z-10">
                     <div className="flex flex-col md:flex-row items-center">
                         <motion.div
                             className="md:w-1/2 md:pr-12"
@@ -332,26 +345,36 @@ export default function Home() {
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.8, ease: "easeOut" }}
                         >
-                            <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-[#111827] mb-4">
-                                Discover your potential with <span className="bg-gradient-to-r from-[#6C63FF] to-[#8A84FF] bg-clip-text text-transparent">LearnXtrade</span>
+                            <div className="inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r from-blue-500/10 to-indigo-500/10 text-indigo-600 text-sm font-medium mb-6">
+                                <span className="flex h-2 w-2 mr-2">
+                                    <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-indigo-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-600"></span>
+                                </span>
+                                Leading Online Learning Platform
+                            </div>
+                            
+                            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-[#111827] mb-6">
+                                Unlock Your Future With <span className="bg-gradient-to-r from-[#6C63FF] via-[#8A84FF] to-[#9181FF] bg-clip-text text-transparent">LearnXtrade</span>
                             </h1>
-                            <p className="text-[#6B7280] text-lg mb-8 md:max-w-lg">
-                                Explore courses taught by expert instructors across various disciplines. Learn at your own pace and track your progress.
+                            <p className="text-[#6B7280] text-lg mb-8 md:max-w-xl">
+                                Join over 32,000 learners mastering in-demand skills with our expert-led courses. 
+                                Advance your career with personalized learning paths.
                             </p>
 
-                            {/* Search bar */}
-                            <div className={`relative mb-8 transition-all duration-300 ${isSearchFocused ? 'scale-105' : ''}`}>
+                            {/* Search bar with 3D effect */}
+                            <div className={`relative mb-10 transition-all duration-300 ${isSearchFocused ? 'scale-105' : ''}`}>
+                                <div className="absolute inset-0 bg-gradient-to-r from-[#6C63FF]/50 to-[#8A84FF]/50 rounded-xl blur-md transform -rotate-1 scale-105 opacity-30"></div>
                                 <input
                                     type="text"
                                     placeholder="Search for any skill, course or educator..."
-                                    className="w-full px-5 py-4 pr-12 rounded-xl border border-gray-200 focus:border-[#6C63FF] focus:ring-2 focus:ring-[#6C63FF]/20 shadow-sm transition-all duration-300"
+                                    className="w-full px-5 py-5 pr-12 rounded-xl border border-gray-200 focus:border-[#6C63FF] focus:ring-2 focus:ring-[#6C63FF]/20 shadow-lg transition-all duration-300 relative"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     onFocus={() => setIsSearchFocused(true)}
                                     onBlur={() => setIsSearchFocused(false)}
                                 />
-                                <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#6B7280]" viewBox="0 0 20 20" fill="currentColor">
+                                <div className="absolute inset-y-0 right-0 flex items-center pr-5 pointer-events-none">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#6C63FF]" viewBox="0 0 20 20" fill="currentColor">
                                         <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
                                     </svg>
                                 </div>
@@ -361,7 +384,7 @@ export default function Home() {
                                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
                                     <Link
                                         to="/signup"
-                                        className="bg-gradient-to-r from-[#6C63FF] to-[#5046E5] text-white px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-300"
+                                        className="bg-gradient-to-r from-[#6C63FF] to-[#5046E5] text-white px-8 py-4 rounded-xl font-bold shadow-xl hover:shadow-indigo-500/30 transition-all duration-300"
                                     >
                                         Start Learning
                                     </Link>
@@ -369,62 +392,159 @@ export default function Home() {
                                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
                                     <Link
                                         to="/educator-signup"
-                                        className="bg-white text-[#6C63FF] border border-[#6C63FF] px-6 py-3 rounded-lg font-medium hover:bg-indigo-50 transition-all duration-300"
+                                        className="bg-white text-[#6C63FF] border-2 border-[#6C63FF] px-8 py-4 rounded-xl font-bold hover:bg-indigo-50 transition-all duration-300 shadow-lg"
                                     >
                                         Become an Educator
                                     </Link>
                                 </motion.div>
                             </div>
+
+                            {/* Testimonial pill */}
+                            <div className="mt-10 flex items-center bg-white px-4 py-2 rounded-full shadow-md max-w-md">
+                                <div className="flex -space-x-2 mr-3">
+                                    <img src="https://randomuser.me/api/portraits/men/32.jpg" className="w-8 h-8 rounded-full border-2 border-white" />
+                                    <img src="https://randomuser.me/api/portraits/women/44.jpg" className="w-8 h-8 rounded-full border-2 border-white" />
+                                    <img src="https://randomuser.me/api/portraits/men/43.jpg" className="w-8 h-8 rounded-full border-2 border-white" />
+                                </div>
+                                <p className="text-xs text-gray-600">
+                                    <span className="font-medium text-gray-900">Join 32,000+ learners</span> gaining new skills every day
+                                </p>
+                            </div>
                         </motion.div>
 
                         <motion.div
-                            className="md:w-1/2 mt-12 md:mt-0"
+                            className="md:w-1/2 mt-16 md:mt-0"
                             initial={{ opacity: 0, y: 50 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
                         >
                             <div className="relative w-full max-w-md mx-auto">
-                                <div className="absolute -top-4 -left-4 w-full h-full bg-[#6C63FF]/10 rounded-xl transform -rotate-6"></div>
+                                {/* Decorative elements */}
+                                <div className="absolute -top-8 -left-8 w-full h-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-2xl transform rotate-6"></div>
+                                <div className="absolute -bottom-8 -right-8 w-full h-full bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-2xl transform -rotate-6"></div>
+                                
+                                {/* Main image */}
                                 <img
-                                    src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80"
-                                    alt="Online learning illustration"
-                                    className="relative rounded-xl shadow-2xl transform rotate-3 hover:rotate-0 transition-transform duration-500"
+                                    src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80"
+                                    alt="Students collaborating on a project"
+                                    className="relative rounded-2xl shadow-2xl transform hover:scale-105 transition-transform duration-700 z-10"
                                 />
+                                
+                                {/* Floating badges */}
+                                <div className="absolute -top-4 -right-4 bg-white p-3 rounded-xl shadow-lg transform rotate-3 hover:rotate-6 transition-transform duration-300 z-20">
+                                    <div className="flex items-center">
+                                        <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                        <span className="ml-1 text-sm font-bold">4.9/5 Rating</span>
+                                    </div>
+                                </div>
+                                
+                                <div className="absolute -bottom-4 -left-4 bg-white p-3 rounded-xl shadow-lg z-20">
+                                    <div className="flex items-center">
+                                        <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                        </svg>
+                                        <span className="ml-1 text-sm font-bold">278+ Courses</span>
+                                    </div>
+                                </div>
                             </div>
                         </motion.div>
+                    </div>
+                </div>
+                
+                {/* Trusted by companies section */}
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 border-t border-gray-100">
+                    <p className="text-center text-sm font-medium text-gray-500 mb-6">TRUSTED BY LEADING COMPANIES</p>
+                    <div className="flex flex-wrap justify-center items-center gap-8 opacity-70">
+                        <img src="https://cdn.worldvectorlogo.com/logos/microsoft-5.svg" alt="Microsoft" className="h-8 grayscale hover:grayscale-0 transition-all duration-300" />
+                        <img src="https://cdn.worldvectorlogo.com/logos/google-2015.svg" alt="Google" className="h-6 grayscale hover:grayscale-0 transition-all duration-300" />
+                        <img src="https://cdn.worldvectorlogo.com/logos/amazon-2.svg" alt="Amazon" className="h-6 grayscale hover:grayscale-0 transition-all duration-300" />
+                        <img src="https://cdn.worldvectorlogo.com/logos/apple-13.svg" alt="Apple" className="h-8 grayscale hover:grayscale-0 transition-all duration-300" />
+                        <img src="https://cdn.worldvectorlogo.com/logos/tesla-9.svg" alt="Tesla" className="h-6 grayscale hover:grayscale-0 transition-all duration-300" />
                     </div>
                 </div>
             </section>
 
             {/* Stats Counter Section */}
-            <section className="py-12 bg-white">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <section className="py-16 bg-white relative">
+                {/* Decorative elements */}
+                <div className="absolute inset-0 flex justify-between overflow-hidden">
+                    <div className="w-1/3 h-full bg-gradient-to-br from-indigo-50 to-transparent opacity-70"></div>
+                    <div className="w-1/3 h-full bg-gradient-to-bl from-teal-50 to-transparent opacity-70"></div>
+                </div>
+                
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+                    <div className="text-center mb-10">
+                        <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Empowering Education At Scale</h2>
+                        <p className="mt-3 max-w-2xl mx-auto text-gray-500 text-lg">Join our growing community of learners and educators from around the world</p>
+                    </div>
+                    
                     <motion.div
-                        className="grid grid-cols-1 md:grid-cols-3 gap-6"
+                        className="grid grid-cols-1 md:grid-cols-3 gap-8"
                         ref={statsRef}
                         initial="hidden"
                         animate={statsInView ? "visible" : "hidden"}
                         variants={staggerContainer}
                     >
-                        <motion.div className="flex flex-col items-center py-8 px-4 rounded-xl bg-gradient-to-r from-[#6C63FF]/5 to-[#8A84FF]/5" variants={fadeIn}>
-                            <div className="text-5xl font-bold bg-gradient-to-r from-[#6C63FF] to-[#8A84FF] bg-clip-text text-transparent mb-2">
-                                {statsInView && <CountUp end={stats.students} duration={2.5} separator="," />}+
+                        <motion.div 
+                            className="relative group" 
+                            variants={fadeIn}
+                            whileHover={{ translateY: -8 }}
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl transform rotate-2 group-hover:rotate-1 transition-transform duration-300"></div>
+                            <div className="relative flex flex-col items-center py-10 px-6 bg-white rounded-2xl border border-gray-100 shadow-xl">
+                                <div className="bg-indigo-100 rounded-full p-3 mb-4">
+                                    <svg className="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                    </svg>
+                                </div>
+                                <div className="text-6xl font-bold bg-gradient-to-r from-[#6C63FF] to-[#8A84FF] bg-clip-text text-transparent mb-3">
+                                    {statsInView && <CountUp end={stats.students} duration={2.5} separator="," />}+
+                                </div>
+                                <span className="text-gray-700 font-medium text-xl">Active Learners</span>
+                                <p className="text-gray-500 text-sm mt-2 text-center">Growing community of students mastering new skills daily</p>
                             </div>
-                            <span className="text-[#6B7280]">Active Learners</span>
                         </motion.div>
 
-                        <motion.div className="flex flex-col items-center py-8 px-4 rounded-xl bg-gradient-to-r from-[#00C49A]/5 to-teal-500/5" variants={fadeIn}>
-                            <div className="text-5xl font-bold bg-gradient-to-r from-[#00C49A] to-teal-500 bg-clip-text text-transparent mb-2">
-                                {statsInView && <CountUp end={stats.courses} duration={2.5} />}+
+                        <motion.div 
+                            className="relative group" 
+                            variants={fadeIn}
+                            whileHover={{ translateY: -8 }}
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-emerald-600 rounded-2xl transform -rotate-2 group-hover:rotate-1 transition-transform duration-300"></div>
+                            <div className="relative flex flex-col items-center py-10 px-6 bg-white rounded-2xl border border-gray-100 shadow-xl">
+                                <div className="bg-teal-100 rounded-full p-3 mb-4">
+                                    <svg className="w-8 h-8 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                    </svg>
+                                </div>
+                                <div className="text-6xl font-bold bg-gradient-to-r from-[#00C49A] to-teal-500 bg-clip-text text-transparent mb-3">
+                                    {statsInView && <CountUp end={stats.courses} duration={2.5} />}+
+                                </div>
+                                <span className="text-gray-700 font-medium text-xl">Quality Courses</span>
+                                <p className="text-gray-500 text-sm mt-2 text-center">Professionally created courses across diverse subject areas</p>
                             </div>
-                            <span className="text-[#6B7280]">Quality Courses</span>
                         </motion.div>
 
-                        <motion.div className="flex flex-col items-center py-8 px-4 rounded-xl bg-gradient-to-r from-[#F59E0B]/5 to-amber-500/5" variants={fadeIn}>
-                            <div className="text-5xl font-bold bg-gradient-to-r from-[#F59E0B] to-amber-500 bg-clip-text text-transparent mb-2">
-                                {statsInView && <CountUp end={stats.instructors} duration={2.5} />}+
+                        <motion.div 
+                            className="relative group" 
+                            variants={fadeIn}
+                            whileHover={{ translateY: -8 }}
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl transform rotate-2 group-hover:rotate-1 transition-transform duration-300"></div>
+                            <div className="relative flex flex-col items-center py-10 px-6 bg-white rounded-2xl border border-gray-100 shadow-xl">
+                                <div className="bg-amber-100 rounded-full p-3 mb-4">
+                                    <svg className="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                                    </svg>
+                                </div>
+                                <div className="text-6xl font-bold bg-gradient-to-r from-[#F59E0B] to-amber-500 bg-clip-text text-transparent mb-3">
+                                    {statsInView && <CountUp end={stats.instructors} duration={2.5} />}+
+                                </div>
+                                <span className="text-gray-700 font-medium text-xl">Expert Instructors</span>
+                                <p className="text-gray-500 text-sm mt-2 text-center">Industry professionals sharing their knowledge and experience</p>
                             </div>
-                            <span className="text-[#6B7280]">Expert Instructors</span>
                         </motion.div>
                     </motion.div>
                 </div>
