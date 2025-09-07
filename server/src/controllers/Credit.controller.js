@@ -54,7 +54,7 @@ const purchaseCredits = asyncHandler(async (req, res) => {
                 paymentId: payment.result.id,
                 paymentLink: payment.result.link,
                 amount,
-                priceInETH: (amount * 0.001).toString()
+                priceInETH: (amount * 0.00000261).toString()
             },
             message: "Payment created successfully. Complete payment to receive credits."
         });
