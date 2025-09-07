@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import ReadinessIndex from '../components/ReadinessIndex';
 
 export default function Dashboard() {
     const navigate = useNavigate();
@@ -311,6 +312,11 @@ export default function Dashboard() {
                                     </div>
                                 </div>
                             )}
+                        </div>
+
+                        {/* Learning Readiness Index */}
+                        <div className="transition-all duration-500 ease-out">
+                            <ReadinessIndex userId={user.userId} />
                         </div>
 
                         {/* Badges Section */}

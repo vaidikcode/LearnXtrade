@@ -24,12 +24,14 @@ app.use(cookieParser());
 import StudentRoutes from './src/routes/Student.routes.js'
 import TeacherRoutes from './src/routes/Teacher.routes.js'
 import CourseRoutes from './src/routes/Course.routes.js'
+import ReadinessRoutes from './src/routes/Readiness.routes.js'
 import { studentAuth } from './src/utils/studentAuth.js';
 import { teacherAuth } from './src/utils/teacherAuth.js';
 
 app.use('/api/student', StudentRoutes);
 app.use('/api/teacher', TeacherRoutes);
 app.use('/api/course', CourseRoutes);
+app.use('/api/readiness', ReadinessRoutes);
 app.get('/api/stdAuth', studentAuth);
 app.get('/api/teachAuth', teacherAuth);
 
